@@ -1,5 +1,9 @@
 # Better Find Posts
 
+Extensible JavaScript-centric replacement for the WordPress 3.1 `find_posts_div()`/`findPosts`
+API. Add to page via `\Better_Find_Posts::instance()->enqueue()` then create
+a control via `BetterFindPosts.create()`.
+
 Example code:
 
 ```php

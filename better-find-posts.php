@@ -4,6 +4,9 @@
  * Description: Extensible JavaScript-centric replacement for the WordPress 3.1 find_posts_div/findPosts API. Add to page via <code>\Better_Find_Posts::instance()->enqueue()</code> then create a control via BetterFindPosts.create().
  * Author: Weston Ruter, X-Team WP
  * Author URI: https://x-team-wp.com/
+ * Plugin URI: https://github.com/x-team/wp-better-find-posts
+ * GitHub Plugin URI: x-team/wp-better-find-posts
+ * Requires at least: 3.9.2
  * Version: 0.1
  * License: GPLv2+
  *
