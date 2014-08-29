@@ -284,6 +284,6 @@ class Better_Find_Posts {
 
 }
 
-class Better_Find_Posts_Exception extends Exception{}
+class Better_Find_Posts_Exception extends Exception {}
 
 return Better_Find_Posts::instance();

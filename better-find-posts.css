@@ -1,3 +1,6 @@
+.better-find-posts-search-form {
+	margin-bottom: 1em;
+}
 .better-find-posts-search-form .spinner {
 	float: none;
 	display: inline-block;
@@ -14,4 +17,6 @@
 .better-find-posts-results-table.loading {
 	opacity: 0.5;
 }
-/* @todo style the table */
+.better-find-posts-results-table {
+	margin-top: 1em;
+}
