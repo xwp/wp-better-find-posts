@@ -91,17 +91,18 @@ var BetterFindPosts = ( function ( $ ) {
 			control.messageElement.show();
 		};
 
-		control.searchForm.on( 'submit', function ( e ) {
-			var value;
-			e.preventDefault();
-
-			value = $( this ).find( '[type=search]' ).val();
+		/**
+		 *
+		 * @param {Object} args
+		 */
+		control.query = function ( args ) {
+			args = args || {};
 
 			control.hideMessage();
 			control.searchForm.addClass( 'loading' );
 			control.resultsTableContainer.find( '> table' ).addClass( 'loading' );
 
-			control.request = self.query( _.defaults( { s: value }, control.defaultQueryArgs ) );
+			control.request = self.query( _.defaults( args, control.defaultQueryArgs ) );
 
 			control.request.always( function () {
 				control.searchForm.removeClass( 'loading' );
@@ -126,6 +127,21 @@ var BetterFindPosts = ( function ( $ ) {
 
 				control.resultsTableContainer.append( resultsTable );
 			} );
+		};
+
+		/**
+		 * @returns {string}
+		 */
+		control.getSearchQuery = function () {
+			return control.searchForm.find( '[type=search]' ).val();
+		};
+
+		/**
+		 *
+		 */
+		control.searchForm.on( 'submit', function ( e ) {
+			e.preventDefault();
+			control.query( { s: control.getSearchQuery() } );
 		} );
 
 		return control;
