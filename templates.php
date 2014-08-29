@@ -36,7 +36,7 @@
 				<# if ( -1 === jQuery.inArray( 'type', hiddenColumns ) ) { #>
 					<th scope="col" class="column-type"><?php esc_html_e( 'Type', 'better-find-posts' ) ?></th>
 				<# } #>
-				<# if ( -1 === jQuery.inArray( 'type', hiddenColumns ) ) { #>
+				<# if ( -1 === jQuery.inArray( 'status', hiddenColumns ) ) { #>
 					<th scope="col" class="column-status"><?php esc_html_e( 'Status', 'better-find-posts' ) ?></th>
 				<# } #>
 				<# if ( -1 === jQuery.inArray( 'date', hiddenColumns ) ) { #>
@@ -76,7 +76,7 @@
 							{{ post.post_type_label }}
 						</td>
 					<# } #>
-					<# if ( -1 === jQuery.inArray( 'type', hiddenColumns ) ) { #>
+					<# if ( -1 === jQuery.inArray( 'status', hiddenColumns ) ) { #>
 						<td class="column-status">
 							{{ post.post_status_label }}
 						</td>
