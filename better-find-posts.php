@@ -248,6 +248,12 @@ class Better_Find_Posts {
 				$post['post_status_label'] = $post_status_obj ? $post_status_obj->label : null;
 				$post['post_type_label'] = get_post_type_object( $post['post_type'] )->label;
 				$post['permalink'] = get_permalink( $post_obj->ID );
+				$post['featured_image_src'] = null;
+				if ( $attachment_id = get_post_thumbnail_id( $post_obj->ID ) ) {
+					$img = wp_get_attachment_image_src( $attachment_id, 'thumbnail', false );
+					$post['featured_image_src'] = array_shift( $img );
+				}
+				$post['featured_image_src'] = apply_filters( 'better_find_posts_featured_image_src', $post['featured_image_src'], $post_obj );
 				if ( '0000-00-00 00:00:00' !== $post_obj->post_date_gmt ) {
 					$post['post_date_timestamp'] = get_date_from_gmt( $post_obj->post_date_gmt, 'U' );
 					$post['post_date_iso'] = get_date_from_gmt( $post_obj->post_date_gmt, 'c' );
