@@ -20,3 +20,6 @@
 .better-find-posts-results-table {
 	margin-top: 1em;
 }
+.better-find-posts-results-table label {
+	display: block;
+}
