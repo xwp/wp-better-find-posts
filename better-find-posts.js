@@ -58,7 +58,8 @@ var BetterFindPosts = ( function ( $ ) {
 			resultsTableContainer: '',
 			selectedPosts: [],
 			defaultQueryArgs: {},
-			hiddenColumns: []
+			hiddenColumns: [],
+			queriedPosts: {}
 		} );
 
 		control.searchForm = $( self.templates.searchForm( { controlId: control.id } ) );
@@ -112,6 +113,10 @@ var BetterFindPosts = ( function ( $ ) {
 			} );
 
 			control.request.done( function ( posts ) {
+				control.queriedPosts = {};
+				$.each( posts, function ( i, post ) {
+					control.queriedPosts[ post.ID ] = post;
+				} );
 				control.resultsTableContainer.empty();
 				if ( posts.length === 0 ) {
 					control.showMessage( self.l10n.no_posts_found );
