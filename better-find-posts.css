@@ -1,0 +1,16 @@
+.better-find-posts-search-form .spinner {
+	float: none;
+	display: inline-block;
+	visibility: hidden;
+}
+.better-find-posts-search-form .message.error {
+	color: red;
+}
+
+.better-find-posts-search-form.loading .spinner {
+	visibility: visible;
+}
+
+.better-find-posts-results-table.loading {
+	opacity: 0.5;
+}

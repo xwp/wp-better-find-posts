@@ -11,7 +11,8 @@ var BetterFindPosts = ( function ( $ ) {
 		templates: {
 			searchForm: null,
 			resultsTable: null
-		}
+		},
+		l10n: {}
 	};
 	$.extend( self, _BetterFindPosts_exports );
 	window._BetterFindPosts_exports = null;
@@ -64,23 +65,57 @@ var BetterFindPosts = ( function ( $ ) {
 		control.searchFormContainer = $( args.searchFormContainer );
 		control.resultsTableContainer = $( args.resultsTableContainer );
 		control.searchFormContainer.append( control.searchForm );
+		control.messageElement = control.searchForm.find( '.message' );
+
+		/**
+		 *
+		 */
+		control.hideMessage = function () {
+			control.messageElement.hide();
+		};
+
+		/**
+		 *
+		 * @param {string} message
+		 * @param {string} [type]
+		 */
+		control.showMessage = function ( message, type ) {
+			if ( control.messageElement.data( 'type' ) ) {
+				control.messageElement.removeClass( control.messageElement.data( 'type' ) );
+			}
+
+			type = type || 'notice';
+			control.messageElement.addClass( type );
+			control.messageElement.data( 'type', type );
+			control.messageElement.text( message );
+			control.messageElement.show();
+		};
 
 		control.searchForm.on( 'submit', function ( e ) {
 			var value;
 			e.preventDefault();
 
 			value = $( this ).find( '[type=search]' ).val();
+
+			control.hideMessage();
 			control.searchForm.addClass( 'loading' );
 			control.resultsTableContainer.find( '> table' ).addClass( 'loading' );
 
 			control.request = self.query( _.defaults( { s: value }, control.defaultQueryArgs ) );
+
 			control.request.always( function () {
 				control.searchForm.removeClass( 'loading' );
 			} );
-			// @todo what if fail?
+			control.request.fail( function ( code ) {
+				control.showMessage( self.l10n[ code ] || self.l10n.server_error, 'error' );
+			} );
 
 			control.request.done( function ( posts ) {
-				// @todo what if empty?
+				control.resultsTableContainer.empty();
+				if ( posts.length === 0 ) {
+					control.showMessage( self.l10n.no_posts_found );
+					return;
+				}
 
 				var resultsTable = $( self.templates.resultsTable( {
 					posts: posts,
@@ -88,7 +123,6 @@ var BetterFindPosts = ( function ( $ ) {
 					controlId: control.id,
 					hiddenColumns: control.hiddenColumns
 				} ) );
-				control.resultsTableContainer.empty();
 
 				control.resultsTableContainer.append( resultsTable );
 			} );

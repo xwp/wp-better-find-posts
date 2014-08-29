@@ -109,6 +109,10 @@ class Better_Find_Posts {
 		$exported_data = array(
 			'nonce' => wp_create_nonce( 'better-find-posts' ),
 			'ajax_action' => self::AJAX_ACTION,
+			'l10n' => array(
+				'no_posts_found' => __( 'No posts found.', 'better-find-posts' ),
+				'server_error' => __( 'A server error ocurred. Please try again.', 'better-find-posts' ),
+			)
 		);
 
 		$exported_name = '_BetterFindPosts_exports';
@@ -178,6 +182,8 @@ class Better_Find_Posts {
 		if ( isset( $_GET['s'] ) ) {
 			$s = sanitize_text_field( wp_unslash( $_GET['s'] ) ); // input var okay
 		}
+
+		// @todo date_query
 
 		$args = compact( 'post_type', 'posts_per_page', 'post_status', 's' );
 		$args = apply_filters( 'better_find_posts_query_args', $args, $this );
@@ -249,6 +255,7 @@ class Better_Find_Posts {
 				<input type="search" id="better-find-posts-search-{{ data.controlId }}" class="better-find-posts-input" name="s" value="{{ data.value }}" />
 				<?php submit_button( __( 'Search' ), 'button-primary', 'better-find-posts-search', false ); ?>
 				<span class="spinner"></span>
+				<span class="message"></span>
 			</form>
 		</script>
 
