@@ -14,9 +14,9 @@
 <script type="text/html" id="tmpl-better-find-posts-results-table">
 	<#
 	data = data || {};
-	var inputType, selected, hiddenColumns;
+	var inputType, selected, hiddenColumns, inputName;
 	inputType = data.inputType || 'radio';
-	inputActiveAttr = ( 'radio' === inputType ? 'selected' : 'checked' );
+	inputName = data.inputName || 'better-find-posts';
 	selected = data.selected || [];
 	hiddenColumns = data.hiddenColumns || [];
 	alternate = true;
@@ -62,9 +62,9 @@
 				#>
 				<tr class="{{ rowClass }}">
 					<td class="column-select found-radio" scope="row">
-						<input id="better-find-posts-search-{{ data.controlId }}-{{ post.ID }}" type="{{ inputType }}" name="posts[]" value="{{ post.ID }}"
+						<input id="better-find-posts-search-{{ data.controlId }}-{{ post.ID }}" type="{{ inputType }}" name="{{ inputName }}[]" value="{{ post.ID }}"
 							<# if ( -1 !== jQuery.inArray( post.ID, data.selected ) ) { #>
-								<# print( inputActiveAttr ) #>
+								checked
 							<# } #>
 							>
 					</td>

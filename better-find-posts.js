@@ -56,10 +56,11 @@ var BetterFindPosts = ( function ( $ ) {
 			id: self.control_count,
 			searchFormContainer: '',
 			resultsTableContainer: '',
-			selectedPosts: [],
+			selected: [],
 			defaultQueryArgs: {},
 			hiddenColumns: [],
-			queriedPosts: {}
+			queriedPosts: {},
+			inputName: 'better-find-posts'
 		} );
 
 		control.searchForm = $( self.templates.searchForm( { controlId: control.id } ) );
@@ -125,9 +126,10 @@ var BetterFindPosts = ( function ( $ ) {
 
 				var resultsTable = $( self.templates.resultsTable( {
 					posts: posts,
-					selected: [],
+					selected: control.selected,
 					controlId: control.id,
-					hiddenColumns: control.hiddenColumns
+					hiddenColumns: control.hiddenColumns,
+					inputName: control.inputName
 				} ) );
 
 				control.resultsTableContainer.append( resultsTable );
