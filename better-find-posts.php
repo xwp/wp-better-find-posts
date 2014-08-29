@@ -183,9 +183,19 @@ class Better_Find_Posts {
 			$s = sanitize_text_field( wp_unslash( $_GET['s'] ) ); // input var okay
 		}
 
-		// @todo date_query
+		// Date query
+		$date_query = array();
+		foreach ( array( 'before', 'after' ) as $when ) {
+			if ( empty( $_GET['date_query'][ $when ] ) ) { // input var okay
+				continue;
+			}
+			$value = sanitize_text_field( wp_unslash( $_GET['date_query'][ $when ] ) ); // input var okay
+			if ( preg_match( '/^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$/', $value ) ) {
+				$date_query[ $when ] = $value;
+			}
+		}
 
-		$args = compact( 'post_type', 'posts_per_page', 'post_status', 's' );
+		$args = compact( 'post_type', 'posts_per_page', 'post_status', 's', 'date_query' );
 		$args = apply_filters( 'better_find_posts_query_args', $args, $this );
 		return $args;
 	}
