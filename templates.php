@@ -36,6 +36,9 @@
 				<# if ( -1 === jQuery.inArray( 'time', hiddenColumns ) ) { #>
 					<th class="column-time"><?php esc_html_e( 'Time', 'better-find-posts' ) ?></th>
 				<# } #>
+				<# if ( -1 === jQuery.inArray( 'link', hiddenColumns ) ) { #>
+					<th class="column-link"><?php esc_html_e( 'Link', 'better-find-posts' ) ?></th>
+				<# } #>
 			</tr>
 		</thead>
 		<tbody>
@@ -69,6 +72,11 @@
 					<# if ( -1 === jQuery.inArray( 'time', hiddenColumns ) ) { #>
 						<td class="column-time">
 							<time datetime="{{ post.post_date_iso }}">{{ post.post_time_formatted }}</time>
+						</td>
+					<# } #>
+					<# if ( -1 === jQuery.inArray( 'link', hiddenColumns ) ) { #>
+						<td class="column-link">
+							<a href="{{ post.permalink }}" target="_blank"><?php esc_html_e( 'view', 'better-find-posts' ) ?></time>
 						</td>
 					<# } #>
 				</tr>

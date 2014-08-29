@@ -247,6 +247,7 @@ class Better_Find_Posts {
 				$post['post_title_filtered'] = html_entity_decode( get_the_title( $post_obj->ID ), ENT_HTML5 );
 				$post['post_status_label'] = $post_status_obj ? $post_status_obj->label : null;
 				$post['post_type_label'] = get_post_type_object( $post['post_type'] )->label;
+				$post['permalink'] = get_permalink( $post_obj->ID );
 				if ( '0000-00-00 00:00:00' !== $post_obj->post_date_gmt ) {
 					$post['post_date_timestamp'] = get_date_from_gmt( $post_obj->post_date_gmt, 'U' );
 					$post['post_date_iso'] = get_date_from_gmt( $post_obj->post_date_gmt, 'c' );
