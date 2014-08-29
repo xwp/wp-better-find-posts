@@ -7,7 +7,7 @@
  * Version: 0.1
  * License: GPLv2+
  *
- * Copyright (c) 2014 X-Team (http://x-team.com/)
+ * Copyright (c) 2014 X-Team WP (http://x-team-wp.com/)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2 or, at
@@ -60,6 +60,7 @@ class Better_Find_Posts {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, array( $this, 'wp_ajax_better_find_posts' ) );
+		add_action( 'admin_footer', array( $this, 'render_templates' ) );
 	}
 
 	/**
@@ -114,6 +115,8 @@ class Better_Find_Posts {
 	}
 
 	/**
+	 * Look at $_GET to get the query args for the Ajax request.
+	 *
 	 * @return array
 	 */
 	protected function get_request_args() {
@@ -200,6 +203,7 @@ class Better_Find_Posts {
 				if ( '0000-00-00 00:00:00' !== $post_obj->post_date_gmt ) {
 					$post['post_date_timestamp'] = get_date_from_gmt( $post_obj->post_date_gmt, 'U' );
 					$post['post_date_iso'] = get_date_from_gmt( $post_obj->post_date_gmt, 'c' );
+					$post['post_date_formatted'] = get_date_from_gmt( $post_obj->post_date_gmt, 'Y-m-d' );
 				} else {
 					$post['post_date_timestamp'] = null;
 					$post['post_date_iso'] = null;
@@ -218,6 +222,63 @@ class Better_Find_Posts {
 			}
 			wp_send_json_error( $message );
 		}
+	}
+
+	function render_templates() {
+		?>
+		<script type="text/html" id="tmpl-better-find-posts-search-form">
+			<form class="better-find-posts-search-form">
+				<label class="screen-reader-text"><?php _e( 'Search', 'better-find-posts' ); ?></label>
+				<input type="search" class="better-find-posts-input" name="s" value="{{ data.value }}" />
+				<span class="spinner"></span>
+				<input type="button" class="better-find-posts-search" value="<?php esc_attr_e( 'Search', 'better-find-posts' ); ?>" class="button" />
+			</form>
+		</script>
+
+		<script type="text/html" id="tmpl-better-find-posts-results-table">
+			<#
+			var inputType, selected;
+			inputType = data.inputType || 'radio';
+			selected = data.selected || [];
+			#>
+			<table class="better-find-posts-results-table">
+				<thead>
+					<tr>
+						<th></th>
+						<th><?php esc_html_e( 'Title', 'better-find-posts' ) ?></th>
+						<th><?php esc_html_e( 'Type', 'better-find-posts' ) ?></th>
+						<th><?php esc_html_e( 'Status', 'better-find-posts' ) ?></th>
+						<th><?php esc_html_e( 'Date', 'better-find-posts' ) ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<# _.each( data.posts, function ( post ) { #>
+						<tr>
+							<td>
+								<input type="{{ inputType }}" name="posts[]" value="{{ post.ID }}"
+									<# if ( -1 !== jQuery.inArray( post.ID, data.selected ) ) { #>
+										<# print( 'radio' === inputType ? 'selected' : 'checked' ) #>
+									<# } #>
+									>
+							</td>
+							<td>
+								{{ post.post_title_filtered }}
+							</td>
+							<td>
+								{{ post.post_type_label }}
+							</td>
+							<td>
+								{{ post.post_status_label }}
+							</td>
+							<td>
+								<time datetime="{{ post.post_date_iso }}">{{ post.post_date_formatted }}</time>
+							</td>
+						</tr>
+					<# } ) #>
+				</tbody>
+			</table>
+		</script>
+		<?php
 	}
 
 }

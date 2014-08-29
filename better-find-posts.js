@@ -4,8 +4,12 @@ var BetterFindPosts = ( function ( $ ) {
 	'use strict';
 
 	var self = {
-		'nonce': '',
-		'ajax_action': ''
+		nonce: '',
+		ajax_action: '',
+		templates: {
+			searchForm: null,
+			resultsTable: null
+		}
 	};
 	$.extend( self, _BetterFindPosts_exports );
 	window._BetterFindPosts_exports = null;
@@ -32,12 +36,25 @@ var BetterFindPosts = ( function ( $ ) {
 	/**
 	 * Set up BetterFindPosts upon DOM ready.
 	 */
-	self.init = function () {
-		// do stuff
+	self._init = function () {
+		self.templates.searchForm = wp.template( 'better-find-posts-search-form' );
+		self.templates.resultsTable = wp.template( 'better-find-posts-results-table' );
+	};
+
+	/**
+	 * Set up a new better-find-posts control
+	 */
+	self.create = function ( args ) {
+		args = _.defaults( args || {}, {
+			searchFormContainer: '',
+			resultsTableContainer: ''
+		} );
+
+		$( args.searchFormContainer ).append( self.templates.searchForm() );
 	};
 
 	$( function () {
-		self.init();
+		self._init();
 	} );
 
 	return self;
