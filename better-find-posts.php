@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Better Find Posts
- * Description: Better API than the WordPress 3.1 find_posts_div and findPosts. Open find dialog in modal or inline. Uses Backbone.
+ * Description: Extensible JavaScript-centric replacement for the WordPress 3.1 find_posts_div/findPosts API. Add to page via <code>\Better_Find_Posts::instance()->enqueue()</code> then create a control via BetterFindPosts.create().
  * Author: Weston Ruter, X-Team WP
  * Author URI: https://x-team-wp.com/
  * Version: 0.1
@@ -60,9 +60,29 @@ class Better_Find_Posts {
 		);
 		$this->config = apply_filters( 'better_find_posts_plugin_config', $this->config );
 
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, array( $this, 'wp_ajax_better_find_posts' ) );
-		add_action( 'admin_footer', array( $this, 'render_templates' ) );
+	}
+
+	/**
+	 * Add all necessary dependencies to the document. Similar to wp_enqueue_media()
+	 *
+	 * @see wp_enqueue_media()
+	 */
+	function enqueue() {
+		if ( did_action( 'admin_enqueue_scripts' ) || did_action( 'wp_enqueue_scripts' ) || did_action( 'customize_controls_enqueue_scripts' ) ) {
+			$this->enqueue_scripts();
+		} else {
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		}
+		if ( did_action( 'admin_footer' ) || did_action( 'wp_footer' ) || did_action( 'customize_controls_print_footer_scripts' ) ) {
+			$this->render_templates();
+		} else {
+			add_action( 'admin_footer', array( $this, 'render_templates' ) );
+			add_action( 'wp_footer', array( $this, 'render_templates' ) );
+			add_action( 'customize_controls_print_footer_scripts', array( $this, 'render_templates' ) );
+		}
 	}
 
 	/**

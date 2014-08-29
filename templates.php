@@ -5,7 +5,7 @@
 	<form class="better-find-posts-search-form">
 		<label class="screen-reader-text" for="better-find-posts-search-{{ data.controlId }}"><?php _e( 'Search', 'better-find-posts' ); ?></label>
 		<input type="search" id="better-find-posts-search-{{ data.controlId }}" class="better-find-posts-input" name="s" value="{{ data.value }}" />
-		<?php submit_button( __( 'Search' ), 'button-primary', 'better-find-posts-search', false ); ?>
+		<button type="submit" class="button bitton-primary better-find-posts-search"><?php esc_html_e( 'Search', 'better-find-posts' ) ?></button>
 		<span class="spinner"></span>
 		<span class="message"></span>
 	</form>
