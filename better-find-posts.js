@@ -4,6 +4,8 @@ var BetterFindPosts = ( function ( $ ) {
 	'use strict';
 
 	var self = {
+		control_count: 0,
+		ready: $.Deferred(),
 		nonce: '',
 		ajax_action: '',
 		templates: {
@@ -20,7 +22,7 @@ var BetterFindPosts = ( function ( $ ) {
 	 * @param {Object} args Query
 	 * @return {$.Deferred}
 	 */
-	self.get = function ( args ) {
+	self.query = function ( args ) {
 		var xhr;
 		args = args || {};
 		args.nonce = self.nonce;
@@ -39,18 +41,60 @@ var BetterFindPosts = ( function ( $ ) {
 	self._init = function () {
 		self.templates.searchForm = wp.template( 'better-find-posts-search-form' );
 		self.templates.resultsTable = wp.template( 'better-find-posts-results-table' );
+		self.ready.resolve();
 	};
 
 	/**
 	 * Set up a new better-find-posts control
 	 */
 	self.create = function ( args ) {
-		args = _.defaults( args || {}, {
+		var control;
+
+		self.control_count += 1;
+		control = _.defaults( args || {}, {
+			id: self.control_count,
 			searchFormContainer: '',
-			resultsTableContainer: ''
+			resultsTableContainer: '',
+			selectedPosts: [],
+			defaultQueryArgs: {},
+			hiddenColumns: []
 		} );
 
-		$( args.searchFormContainer ).append( self.templates.searchForm() );
+		control.searchForm = $( self.templates.searchForm( { controlId: control.id } ) );
+		control.searchFormContainer = $( args.searchFormContainer );
+		control.resultsTableContainer = $( args.resultsTableContainer );
+		control.searchFormContainer.append( control.searchForm );
+
+		control.searchForm.on( 'submit', function ( e ) {
+			var value;
+			e.preventDefault();
+
+			value = $( this ).find( '[type=search]' ).val();
+			control.searchForm.addClass( 'loading' );
+			control.resultsTableContainer.find( '> table' ).addClass( 'loading' );
+
+			control.request = self.query( _.defaults( { s: value }, control.defaultQueryArgs ) );
+			control.request.always( function () {
+				control.searchForm.removeClass( 'loading' );
+			} );
+			// @todo what if fail?
+
+			control.request.done( function ( posts ) {
+				// @todo what if empty?
+
+				var resultsTable = $( self.templates.resultsTable( {
+					posts: posts,
+					selected: [],
+					controlId: control.id,
+					hiddenColumns: control.hiddenColumns
+				} ) );
+				control.resultsTableContainer.empty();
+
+				control.resultsTableContainer.append( resultsTable );
+			} );
+		} );
+
+		return control;
 	};
 
 	$( function () {

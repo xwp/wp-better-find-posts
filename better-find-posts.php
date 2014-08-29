@@ -55,6 +55,8 @@ class Better_Find_Posts {
 		$this->config = array(
 			'default_post_types' => array(), // i.e. all public
 			'max_posts_per_page' => 100,
+			'date_format' => 'Y-m-d',
+			'time_format' => 'g:ia',
 		);
 		$this->config = apply_filters( 'better_find_posts_plugin_config', $this->config );
 
@@ -90,6 +92,12 @@ class Better_Find_Posts {
 	 */
 	public function enqueue_scripts() {
 		global $wp_scripts;
+
+		$src = $this->get_plugin_dir_url( 'better-find-posts.css' );
+		$handle = 'better-find-posts';
+		$deps = array();
+		$ver = false;
+		wp_enqueue_style( $handle, $src, $deps, $ver );
 
 		$src = $this->get_plugin_dir_url( 'better-find-posts.js' );
 		$handle = 'better-find-posts';
@@ -203,10 +211,13 @@ class Better_Find_Posts {
 				if ( '0000-00-00 00:00:00' !== $post_obj->post_date_gmt ) {
 					$post['post_date_timestamp'] = get_date_from_gmt( $post_obj->post_date_gmt, 'U' );
 					$post['post_date_iso'] = get_date_from_gmt( $post_obj->post_date_gmt, 'c' );
-					$post['post_date_formatted'] = get_date_from_gmt( $post_obj->post_date_gmt, 'Y-m-d' );
+					$post['post_date_formatted'] = get_date_from_gmt( $post_obj->post_date_gmt, $this->config['date_format'] );
+					$post['post_time_formatted'] = get_date_from_gmt( $post_obj->post_date_gmt, $this->config['time_format'] );
 				} else {
 					$post['post_date_timestamp'] = null;
 					$post['post_date_iso'] = null;
+					$post['post_date_formatted'] = null;
+					$post['post_time_formatted'] = null;
 				}
 				$posts[] = $post;
 			}
@@ -224,55 +235,83 @@ class Better_Find_Posts {
 		}
 	}
 
+	/**
+	 * Output WP JS templates.
+	 */
 	function render_templates() {
 		?>
 		<script type="text/html" id="tmpl-better-find-posts-search-form">
+			<#
+			data = data || {};
+			#>
 			<form class="better-find-posts-search-form">
-				<label class="screen-reader-text"><?php _e( 'Search', 'better-find-posts' ); ?></label>
-				<input type="search" class="better-find-posts-input" name="s" value="{{ data.value }}" />
+				<label class="screen-reader-text" for="better-find-posts-search-{{ data.controlId }}"><?php _e( 'Search', 'better-find-posts' ); ?></label>
+				<input type="search" id="better-find-posts-search-{{ data.controlId }}" class="better-find-posts-input" name="s" value="{{ data.value }}" />
+				<?php submit_button( __( 'Search' ), 'button-primary', 'better-find-posts-search', false ); ?>
 				<span class="spinner"></span>
-				<input type="button" class="better-find-posts-search" value="<?php esc_attr_e( 'Search', 'better-find-posts' ); ?>" class="button" />
 			</form>
 		</script>
 
 		<script type="text/html" id="tmpl-better-find-posts-results-table">
 			<#
-			var inputType, selected;
+			data = data || {};
+			var inputType, selected, hiddenColumns;
 			inputType = data.inputType || 'radio';
 			selected = data.selected || [];
+			hiddenColumns = data.hiddenColumns || [];
 			#>
 			<table class="better-find-posts-results-table">
 				<thead>
 					<tr>
-						<th></th>
-						<th><?php esc_html_e( 'Title', 'better-find-posts' ) ?></th>
-						<th><?php esc_html_e( 'Type', 'better-find-posts' ) ?></th>
-						<th><?php esc_html_e( 'Status', 'better-find-posts' ) ?></th>
-						<th><?php esc_html_e( 'Date', 'better-find-posts' ) ?></th>
+						<th class="column-select"></th>
+						<th class="column-title"><?php esc_html_e( 'Title', 'better-find-posts' ) ?></th>
+						<# if ( -1 === jQuery.inArray( 'type', hiddenColumns ) ) { #>
+							<th class="column-type"><?php esc_html_e( 'Type', 'better-find-posts' ) ?></th>
+						<# } #>
+						<# if ( -1 === jQuery.inArray( 'type', hiddenColumns ) ) { #>
+							<th class="column-status"><?php esc_html_e( 'Status', 'better-find-posts' ) ?></th>
+						<# } #>
+						<# if ( -1 === jQuery.inArray( 'date', hiddenColumns ) ) { #>
+							<th class="column-date"><?php esc_html_e( 'Date', 'better-find-posts' ) ?></th>
+						<# } #>
+						<# if ( -1 === jQuery.inArray( 'time', hiddenColumns ) ) { #>
+							<th class="column-time"><?php esc_html_e( 'Time', 'better-find-posts' ) ?></th>
+						<# } #>
 					</tr>
 				</thead>
 				<tbody>
 					<# _.each( data.posts, function ( post ) { #>
 						<tr>
-							<td>
-								<input type="{{ inputType }}" name="posts[]" value="{{ post.ID }}"
+							<td class="column-select">
+								<input id="better-find-posts-search-{{ data.controlId }}-{{ post.ID }}" type="{{ inputType }}" name="posts[]" value="{{ post.ID }}"
 									<# if ( -1 !== jQuery.inArray( post.ID, data.selected ) ) { #>
 										<# print( 'radio' === inputType ? 'selected' : 'checked' ) #>
 									<# } #>
 									>
 							</td>
-							<td>
-								{{ post.post_title_filtered }}
+							<td class="column-title">
+								<label for="better-find-posts-search-{{ data.controlId }}-{{ post.ID }}">{{ post.post_title_filtered }}</label>
 							</td>
-							<td>
-								{{ post.post_type_label }}
-							</td>
-							<td>
-								{{ post.post_status_label }}
-							</td>
-							<td>
-								<time datetime="{{ post.post_date_iso }}">{{ post.post_date_formatted }}</time>
-							</td>
+							<# if ( -1 === jQuery.inArray( 'type', hiddenColumns ) ) { #>
+								<td class="column-type">
+									{{ post.post_type_label }}
+								</td>
+							<# } #>
+							<# if ( -1 === jQuery.inArray( 'type', hiddenColumns ) ) { #>
+								<td class="column-status">
+									{{ post.post_status_label }}
+								</td>
+							<# } #>
+							<# if ( -1 === jQuery.inArray( 'date', hiddenColumns ) ) { #>
+								<td class="column-date">
+									<time datetime="{{ post.post_date_iso }}">{{ post.post_date_formatted }}</time>
+								</td>
+							<# } #>
+							<# if ( -1 === jQuery.inArray( 'time', hiddenColumns ) ) { #>
+								<td class="column-time">
+									<time datetime="{{ post.post_date_iso }}">{{ post.post_time_formatted }}</time>
+								</td>
+							<# } #>
 						</tr>
 					<# } ) #>
 				</tbody>
